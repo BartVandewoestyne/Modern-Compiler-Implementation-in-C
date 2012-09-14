@@ -1,3 +1,8 @@
+/*
+ * Error message module, useful for producing error messages with file names
+ * and line numbers.
+ */
+
 extern bool EM_anyErrors;
 
 void EM_newline(void);

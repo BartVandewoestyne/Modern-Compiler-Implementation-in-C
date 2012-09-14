@@ -1,3 +1,7 @@
+/*
+ * Definition of lexical-token constants and yylval.
+ */
+
 typedef union  {
   int pos;
   int ival;

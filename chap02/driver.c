@@ -1,3 +1,7 @@
+/*
+ * A test scaffold to run your lexer on an input file.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "util.h"
