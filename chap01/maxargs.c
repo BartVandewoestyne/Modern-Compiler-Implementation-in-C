@@ -1,60 +1,4 @@
-#include <stdio.h>
-#include "util.h"
-#include "slp.h"
-#include "prog1.h"
-
-/*
- * Return the maximum number of arguments of any print statement within any
- * subexpression of a given statement.  For example, maxargs(prog) is 2.
- */
-int maxargs(A_stm stm);
-
-/*
- * "Interpret" a program in this language.
- */
-void interp(A_stm stm);
-
-/*
- * Return the maximum of a and b.
- */
-static int max(int a, int b);
-
-/*
- * Count the number of expressions in an expression list.
- */
-static int count_exp( A_expList );
-
-/*
- * Return the maximum number of arguments of any print statement within any
- * subexpression of a given expression.
- */
-static int maxargs_exp( A_exp );
-
-/*
- * Return the maximum number of arguments of any print statement within any
- * subexpression of a given expression list.
- */
-static int maxargs_expList( A_expList );
-
-
-int main()
-{
-  int n;
-
-  n = maxargs(prog());
-  printf("maxargs prog(): %d (should be 2)\n", n);
-  n = maxargs(prog_test1());
-  printf("maxargs prog_test1(): %d (should be 1)\n", n);
-  n = maxargs(prog_test2());
-  printf("maxargs prog_test2(): %d (should be 2)\n", n);
-  n = maxargs(prog_test3());
-  printf("maxargs prog_test3(): %d (should be 5)\n", n);
-
-  interp(prog());
-
-  return 0;
-}
-
+#include "maxargs.h"
 
 int
 maxargs(A_stm stm) {
@@ -77,12 +21,6 @@ maxargs(A_stm stm) {
 
   }
 
-}
-
-
-void
-interp(A_stm stm) {
-  // TODO
 }
 
 
