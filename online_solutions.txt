@@ -4,8 +4,14 @@ a Tiger compiler
 
 https://code.google.com/p/tiger-compiler/
 
+http://code.google.com/p/xcompiler/source/browse/trunk/
+
 https://github.com/DetriusXii/cmpt442project
 
 https://github.com/glacjay/tiger-c
+
+https://github.com/robertkleffner/CompilerTutorial
+
+https://github.com/Athenacle/tiger_compiler
 
 http://homes.esat.kuleuven.be/~nkisserl/compilers/

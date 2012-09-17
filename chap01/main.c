@@ -15,9 +15,27 @@ int maxargs(A_stm stm);
 void interp(A_stm stm);
 
 /*
- * Return the maximum of two integers.
+ * Return the maximum of a and b.
  */
 static int max(int a, int b);
+
+/*
+ * Count the number of expressions in an expression list.
+ */
+static int count_exp( A_expList );
+
+/*
+ * Return the maximum number of arguments of any print statement within any
+ * subexpression of a given expression.
+ */
+static int maxargs_exp( A_exp );
+
+/*
+ * Return the maximum number of arguments of any print statement within any
+ * subexpression of a given expression list.
+ */
+static int maxargs_expList( A_expList );
+
 
 int main()
 {
@@ -28,7 +46,9 @@ int main()
   n = maxargs(prog_test1());
   printf("maxargs prog_test1(): %d (should be 1)\n", n);
   n = maxargs(prog_test2());
-  printf("maxargs prog_test2(): %d (should be 5)\n", n);
+  printf("maxargs prog_test2(): %d (should be 2)\n", n);
+  n = maxargs(prog_test3());
+  printf("maxargs prog_test3(): %d (should be 5)\n", n);
 
   interp(prog());
 
@@ -36,48 +56,99 @@ int main()
 }
 
 
-int maxargs(A_stm stm) {
+int
+maxargs(A_stm stm) {
 
-  switch ( stm->kind ) {
+  switch (stm->kind) {
 
     case A_compoundStm:
-    {
-      return max( maxargs( stm->u.compound.stm1 ),
-                  maxargs( stm->u.compound.stm2 ) );
-    }
+
+      return max( maxargs(stm->u.compound.stm1),
+                  maxargs(stm->u.compound.stm2) );
+
     case A_assignStm:
-    {
-      A_exp e = stm->u.assign.exp;
-      if (e->kind == A_eseqExp) {
-        A_stm s = e->u.eseq.stm;
-        return maxargs(s);
-      } 
-      return 0;
-    }
+
+      return maxargs_exp( stm->u.assign.exp );
+
     case A_printStm:
-    {
-      int count = 1;
-      A_expList es = stm->u.print.exps;
-      while (es->kind != A_lastExpList) {
-         A_exp e = es->u.pair.head;
-         if (e->kind == A_eseqExp) {
-           A_stm s = e->u.eseq.stm;
-           count += maxargs(s);
-         }
-         es = es->u.pair.tail;
-      }
-      return count;
-    }
+
+      return max( count_exp(stm->u.print.exps),
+                  maxargs_expList(stm->u.print.exps) );
+
   }
 
 }
 
 
-void interp(A_stm stm) {
+void
+interp(A_stm stm) {
+  // TODO
 }
 
 
 static int
 max(int a, int b) {
   return ( a > b ) ? a : b;
+}
+
+
+static int
+count_exp(A_expList expList) {
+
+  A_expList el = expList;
+
+  int count;
+  for (count = 1; el->kind != A_lastExpList; el = el->u.pair.tail) {
+    count += 1;
+  }
+
+  return count;
+
+}
+
+
+static int
+maxargs_exp(A_exp exp) {
+
+  switch( exp->kind ) {
+
+    case A_idExp:
+
+      return 0;
+
+    case A_numExp:
+
+      return 0;
+
+    case A_opExp:
+
+      return max( maxargs_exp(exp->u.op.left),
+                  maxargs_exp(exp->u.op.right) );
+
+    case A_eseqExp:
+
+      return max( maxargs(exp->u.eseq.stm),
+                  maxargs_exp(exp->u.eseq.exp) );
+
+  }
+
+}
+
+
+static int
+maxargs_expList(A_expList expList) {
+
+  switch (expList->kind) {
+
+    case A_pairExpList:
+
+      return max( maxargs_exp(expList->u.pair.head),
+                  maxargs_expList(expList->u.pair.tail) );
+
+    case A_lastExpList:
+
+      return maxargs_exp(expList->u.last);
+
+  }
+
 }

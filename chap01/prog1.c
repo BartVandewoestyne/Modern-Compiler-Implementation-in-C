@@ -79,12 +79,37 @@ A_stm prog_test1(void) {
 
 
 /*
+ * a := 5;
+ * print(a, a);
+ */
+A_stm prog_test2(void) {
+
+  return 
+    A_CompoundStm(
+      A_AssignStm(
+        "a",
+        A_NumExp(5)
+      ),
+      A_PrintStm(
+        A_PairExpList(
+          A_IdExp("a"),
+          A_LastExpList(
+            A_IdExp("a")
+          )
+        )
+      )
+    );
+
+}
+
+
+/*
  * a = 5+3;
  * b = ( print(a, (print (a, a, 100, 200, 300),100), a-1), 10*a );
  * print(b);
  */
 A_stm
-prog_test2(void) {
+prog_test3(void) {
 
   return
     A_CompoundStm(
