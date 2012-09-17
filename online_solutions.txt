@@ -1,0 +1,11 @@
+Other places where I found solutions to exercises or C-implementations of
+a Tiger compiler
+-------------------------------------------------------------------------
+
+https://code.google.com/p/tiger-compiler/
+
+https://github.com/DetriusXii/cmpt442project
+
+https://github.com/glacjay/tiger-c
+
+http://homes.esat.kuleuven.be/~nkisserl/compilers/
