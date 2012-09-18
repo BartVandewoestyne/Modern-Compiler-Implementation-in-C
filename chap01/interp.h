@@ -10,7 +10,7 @@ struct table {
   int value;
   Table_ tail;
 };
-Table_  Table(string id, int value, struct table *tail);
+Table_ Table(string id, int value, struct table *tail);
 
 /*
  * Interpreting expressions is more complicated than interpreting statements,
@@ -20,10 +20,12 @@ Table_  Table(string id, int value, struct table *tail);
  * statements will be accomplished by interpreter side effects, however.)  Part
  * of the solution for this is to use this struct.
  */
-struct IntAndTable {
+typedef struct intAndTable *IntAndTable_;
+struct intAndTable {
   int i;
   Table_ t;
 };
+IntAndTable_ IntAndTable(int i, Table_ t);
 
 /*
  * "Interpret" a program in this language.
@@ -43,7 +45,9 @@ Table_ interpStm(A_stm s, Table_ t);
  * subexpressions (such as an OpExp), the table t2 resulting from the first
  * subexpression can be used in processing the second subexpression.
  */
-struct IntAndTable interpExp(A_exp e, Table_ t);
+IntAndTable_ interpExp(A_exp e, Table_ t);
+
+IntAndTable_ interpExpList(A_expList expList, Table_ t);
 
 /*
  * Put a new element at the head of the linked list.

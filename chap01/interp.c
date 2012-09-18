@@ -1,9 +1,12 @@
+#include <stdio.h>
 #include <string.h>
 #include "slp.h"
 #include "interp.h"
 #include "util.h"
 
-Table_  Table(string id, int value, struct table *tail) {
+
+Table_
+Table(string id, int value, struct table *tail) {
   Table_ t = malloc(sizeof(*t));
   t->id = id;
   t->value = value;
@@ -11,27 +14,144 @@ Table_  Table(string id, int value, struct table *tail) {
   return t;
 }
 
-void interp(A_stm stm) {
+
+IntAndTable_
+IntAndTable(int i, Table_ t) {
+  IntAndTable_ it = checked_malloc(sizeof(*it));
+  it->i = i;
+  it->t = t;
+  return it;
 }
 
-Table_ interpStm(A_stm s, Table_ t) {
-  return NULL;
+
+void
+interp(A_stm stm) {
+  interpStm(stm, NULL);
 }
 
-struct IntAndTable interpExp(A_exp e, Table_ t) {
-  ;
+
+Table_
+interpStm(A_stm s, Table_ t) {
+
+  IntAndTable_ it;
+
+  switch (s->kind) {
+
+    case A_compoundStm:
+
+      t = interpStm(s->u.compound.stm1, t);
+      t = interpStm(s->u.compound.stm2, t);
+      return t;
+
+    case A_assignStm:
+
+      it = interpExp(s->u.assign.exp, t);
+      t = update(it->t, s->u.assign.id, it->i);
+      return t;
+
+    case A_printStm:
+
+      it = interpExpList(s->u.print.exps, t);
+      return it->t;
+
+  }
+
+  return t;
+
 }
 
-Table_ update(Table_ t, string id, int value) {
-  Table_ newElement = Table(id, value, t);
-  return newElement;
+
+IntAndTable_
+interpExp(A_exp e, Table_ t) {
+
+  switch (e->kind) {
+
+    case A_idExp:
+
+      return IntAndTable(lookup(t, e->u.id), t);
+      
+    case A_numExp:
+
+      return IntAndTable(e->u.num, t);
+
+    case A_opExp:
+    {
+      int lval, rval;
+      IntAndTable_ it_tmp;
+
+      it_tmp = interpExp(e->u.op.left, t);
+      lval = it_tmp->i;
+      it_tmp = interpExp(e->u.op.right, it_tmp->t);
+      rval = it_tmp->i;
+
+      int value;
+      switch( e->u.op.oper ) {
+        case A_plus:
+          value = lval + rval;
+          break;
+        case A_minus:
+          value = lval - rval;
+          break;
+        case A_times:
+          value = lval * rval;
+          break;
+        case A_div:
+          value = lval / rval;
+          break;
+      }
+
+      return IntAndTable(value, it_tmp->t);
+    }
+
+    case A_eseqExp:
+
+      t = interpStm(e->u.eseq.stm, t);
+      return interpExp(e->u.eseq.exp, t);
+
+  }
+
 }
 
-int lookup(Table_ t, string key) {
-  while (t != NULL) {
-    if (strcmp(t->id, key) == 0) {
+
+IntAndTable_
+interpExpList(A_expList expList, Table_ t) {
+
+  IntAndTable_ it;
+
+  switch (expList->kind) {
+
+    case A_pairExpList:
+
+      it = interpExp(expList->u.pair.head, t);
+      printf("%d ", it->i);
+      return interpExpList(expList->u.pair.tail, it->t);
+
+    case A_lastExpList:
+
+      it = interpExp(expList->u.last, t);
+      printf("%d\n", it->i);
+      return it;
+
+  }
+
+}
+
+
+Table_
+update(Table_ t, string id, int value) {
+  return Table(id, value, t);
+}
+
+
+int
+lookup(Table_ t, string key) {
+
+  Table_ temp = t;
+  while (temp != NULL) {
+    if (temp->id == key) {
       return t->value;
     }
+    temp = temp->tail;
   }
-  return 1; // TODO: can this happen???
+
 }
