@@ -24,13 +24,13 @@ maxargs(A_stm stm) {
 }
 
 
-static int
+int
 max(int a, int b) {
   return ( a > b ) ? a : b;
 }
 
 
-static int
+int
 count_exp(A_expList expList) {
 
   A_expList el = expList;
@@ -45,7 +45,7 @@ count_exp(A_expList expList) {
 }
 
 
-static int
+int
 maxargs_exp(A_exp exp) {
 
   switch( exp->kind ) {
@@ -73,7 +73,7 @@ maxargs_exp(A_exp exp) {
 }
 
 
-static int
+int
 maxargs_expList(A_expList expList) {
 
   switch (expList->kind) {
