@@ -15,12 +15,12 @@ int main()
   t1 = insert(String("t"), (void *) 9, t1);
 
   printf("Tree: tspipfbst\n");
-  printf("%ld\n", (long int) lookup(String("t"), t1)); // 9 (last entered value)
-  printf("%ld\n", (long int) lookup(String("s"), t1)); // 8 (last entered value)
-  printf("%ld\n", (long int) lookup(String("p"), t1)); // 5
-  printf("%ld\n", (long int) lookup(String("i"), t1)); // 4
-  printf("%ld\n", (long int) lookup(String("f"), t1)); // 6
-  printf("%ld\n", (long int) lookup(String("b"), t1)); // 7
+  printf("%ld\n", (long int) lookup(String("t"), t1)); /* 9 (last entered value) */
+  printf("%ld\n", (long int) lookup(String("s"), t1)); /* 8 (last entered value) */
+  printf("%ld\n", (long int) lookup(String("p"), t1)); /* 5 */
+  printf("%ld\n", (long int) lookup(String("i"), t1)); /* 4 */
+  printf("%ld\n", (long int) lookup(String("f"), t1)); /* 6 */
+  printf("%ld\n", (long int) lookup(String("b"), t1)); /* 7 */
 
   T_tree t2 = NULL;
   t2 = insert(String("a"), (void *) 1, t2);
