@@ -22,7 +22,7 @@ maxargs(A_stm stm) {
     default:
 
       /* This should not happen! */
-      assert(0);
+      assert(!"Wrong kind-value for A_stm!");
 
   }
 
@@ -76,7 +76,7 @@ maxargs_exp(A_exp exp) {
     default:
 
       /* This should not happen! */
-      assert(0);
+      assert(!"Wrong kind-value for A_exp->kind!");
 
   }
 
@@ -100,7 +100,7 @@ maxargs_expList(A_expList expList) {
     default:
 
       /* This should not happen */
-      assert(0);
+      assert(!"Wrong kind-value for A_expList!");
 
   }
 

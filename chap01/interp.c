@@ -57,7 +57,7 @@ interpStm(A_stm s, Table_ t) {
     default:
 
       /* This should not happen! */
-      assert(0);
+      assert(!"Wrong kind-value for A_stm!");
 
   }
 
@@ -105,7 +105,7 @@ interpExp(A_exp e, Table_ t) {
           break;
         default:
           /* This should not happen! */
-          assert(0);
+          assert(!"Wrong value for A_exp->u.op.oper!");
       }
 
       return IntAndTable(value, it_tmp->t);
@@ -119,7 +119,7 @@ interpExp(A_exp e, Table_ t) {
     default:
 
       /* This should not happen! */
-      assert(0);
+      assert(!"Wrong kind-value for A_exp!");
 
   }
 
@@ -148,7 +148,7 @@ interpExpList(A_expList expList, Table_ t) {
     default:
 
       /* This should not happen! */
-      assert(0);
+      assert(!"Wrong kind-value for A_expList->kind.");
 
   }
 
@@ -173,6 +173,6 @@ lookup(Table_ t, string key) {
   }
 
   /* This should not happen! */
-  assert(0);
+  assert(!"Table_t pointer should not be NULL!");
 
 }
