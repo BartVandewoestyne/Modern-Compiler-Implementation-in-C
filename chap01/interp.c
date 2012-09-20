@@ -59,6 +59,11 @@ interpStm(A_stm s, Table_ t) {
       it = interpExpList(s->u.print.exps, t);
       return it->t;
 
+    default:
+
+      /* This should not happen! */
+      assert(0);
+
   }
 
   return t;
@@ -90,7 +95,7 @@ interpExp(A_exp e, Table_ t) {
       rval = it_tmp->i;
 
       int value;
-      switch( e->u.op.oper ) {
+      switch (e->u.op.oper) {
         case A_plus:
           value = lval + rval;
           break;
@@ -103,6 +108,9 @@ interpExp(A_exp e, Table_ t) {
         case A_div:
           value = lval / rval;
           break;
+        default:
+          /* This should not happen! */
+          assert(0);
       }
 
       return IntAndTable(value, it_tmp->t);
@@ -112,6 +120,11 @@ interpExp(A_exp e, Table_ t) {
 
       t = interpStm(e->u.eseq.stm, t);
       return interpExp(e->u.eseq.exp, t);
+
+    default:
+
+      /* This should not happen! */
+      assert(0);
 
   }
 
@@ -137,6 +150,11 @@ interpExpList(A_expList expList, Table_ t) {
       printf("%d\n", it->i);
       return it;
 
+    default:
+
+      /* This should not happen! */
+      assert(0);
+
   }
 
 }
@@ -158,5 +176,8 @@ lookup(Table_ t, string key) {
     }
     temp = temp->tail;
   }
+
+  /* This should not happen! */
+  assert(0);
 
 }

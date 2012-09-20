@@ -105,7 +105,7 @@ A_stm prog_test2(void) {
 
 /*
  * a = 5+3;
- * b = ( print(a, (print (a, a, 100, 200, 300),100), a-1), 10*a );
+ * b = (print(a, (print(a, a, 100, 200, 300), 100), a-1), 10*a);
  * print(b);
  */
 A_stm

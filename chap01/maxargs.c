@@ -17,12 +17,17 @@ maxargs(A_stm stm) {
 
     case A_assignStm:
 
-      return maxargs_exp( stm->u.assign.exp );
+      return maxargs_exp(stm->u.assign.exp);
 
     case A_printStm:
 
       return max( count_exp(stm->u.print.exps),
                   maxargs_expList(stm->u.print.exps) );
+
+    default:
+
+      /* This should not happen! */
+      assert(0);
 
   }
 
@@ -31,7 +36,7 @@ maxargs(A_stm stm) {
 
 int
 max(int a, int b) {
-  return ( a > b ) ? a : b;
+  return (a > b) ? a : b;
 }
 
 
@@ -53,7 +58,7 @@ count_exp(A_expList expList) {
 int
 maxargs_exp(A_exp exp) {
 
-  switch( exp->kind ) {
+  switch (exp->kind) {
 
     case A_idExp:
 
@@ -73,6 +78,11 @@ maxargs_exp(A_exp exp) {
       return max( maxargs(exp->u.eseq.stm),
                   maxargs_exp(exp->u.eseq.exp) );
 
+    default:
+
+      /* This should not happen! */
+      assert(0);
+
   }
 
 }
@@ -91,6 +101,11 @@ maxargs_expList(A_expList expList) {
     case A_lastExpList:
 
       return maxargs_exp(expList->u.last);
+
+    default:
+
+      /* This should not happen */
+      assert(0);
 
   }
 
