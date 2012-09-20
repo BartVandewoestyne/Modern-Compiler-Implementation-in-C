@@ -1,6 +1,6 @@
 Other places where I found solutions to exercises or C-implementations of
 a Tiger compiler
--------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 https://code.google.com/p/tiger-compiler/
 
