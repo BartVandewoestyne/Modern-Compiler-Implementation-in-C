@@ -1,8 +1,3 @@
-/*
- * TODO:
- *   1. Get rid of the warning: "control reaches end of non-void function".
- */
-
 #include <stdio.h>
 #include <string.h>
 #include "slp.h"
