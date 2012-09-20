@@ -1,7 +1,7 @@
 #ifndef INTERP_H
 #define INTERP_H
 
-#include "stdlib.h"
+#include <stdlib.h>
 #include "util.h"
 
 typedef struct table *Table_;
