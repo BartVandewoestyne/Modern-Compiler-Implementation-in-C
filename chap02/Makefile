@@ -1,6 +1,6 @@
 # We cannot use the -std=c90 flag here, because the book's code uses the
 # strdup function, so it seems like its written in another C-dialect...
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -Wextra
 CC = gcc
 
 lextest: driver.o lex.yy.o errormsg.o util.o
