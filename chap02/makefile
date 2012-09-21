@@ -17,4 +17,4 @@ util.o: util.c util.h
 	cc -g -c util.c
 
 clean: 
-	rm -f a.out util.o driver.o lex.yy.o lex.yy.c errormsg.o
+	rm -f lextest util.o driver.o lex.yy.o lex.yy.c errormsg.o

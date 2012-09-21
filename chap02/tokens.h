@@ -1,7 +1,21 @@
 /*
  * Definition of lexical-token constants and yylval.
+ *
+ * Here, we define integer constants IF, ID, NUM, and so on.  These values are
+ * returned by the action fragments in the .lex file to tell what token-type
+ * is matched.
  */
 
+
+/*
+ * Some tokens have semantic values associated with them.  For example, ID's
+ * semantic value is the character string constituting the identifier; NUM's
+ * semantic value is an integer; and IF has no semantic value (any IF is
+ * indistinguishable from any other).  The values are communicated to the
+ * parser through the global variable yylval, which is a union of the different
+ * types of semantic values.  The token-type returned by the lexer tells the
+ * parser which variant of the union is valid.
+ */
 typedef union  {
   int pos;
   int ival;
