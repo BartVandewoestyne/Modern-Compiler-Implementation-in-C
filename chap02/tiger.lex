@@ -1,6 +1,4 @@
 /*
- * The beginning of a real tiger.lex file.
- *
  * TODO:
  *   1. The string value that you return for a string literal should have all
  *      the escape sequences translated into their meanings.
@@ -8,7 +6,6 @@
  *      for -32.
  *   3. Detect unclosed comments (at end of file).
  *   4. Detect unclosed strings.
- *
  */
 
 %{
@@ -42,13 +39,13 @@ void adjust(void)
 
 %x COMMENT
 %%
-" "	                   {adjust(); continue;}
-\n	                   {adjust(); EM_newline(); continue;}
+" "                    {adjust(); continue;}
+\n                     {adjust(); EM_newline(); continue;}
 \r                     {adjust(); continue;}
 \t                     {adjust(); continue;}
-","	                   {adjust(); return COMMA;}
-":"	                   {adjust(); return COLON;}
-";"	                   {adjust(); return SEMICOLON;}
+","                    {adjust(); return COMMA;}
+":"                    {adjust(); return COLON;}
+";"                    {adjust(); return SEMICOLON;}
 "("                    {adjust(); return LPAREN;}
 ")"                    {adjust(); return RPAREN;}
 "["                    {adjust(); return LBRACK;}
@@ -69,27 +66,27 @@ void adjust(void)
 "&"                    {adjust(); return AND;}
 "|"                    {adjust(); return OR;}
 ":="                   {adjust(); return ASSIGN;}
-array  	               {adjust(); return ARRAY;}
+array                  {adjust(); return ARRAY;}
 if                     {adjust(); return IF;}
 then                   {adjust(); return THEN;}
 else                   {adjust(); return ELSE;}
 while                  {adjust(); return WHILE;}
-for  	                 {adjust(); return FOR;}
-to  	                 {adjust(); return TO;}
-do  	                 {adjust(); return DO;}
-let  	                 {adjust(); return LET;}
-in  	                 {adjust(); return IN;}
-end  	                 {adjust(); return END;}
-of  	                 {adjust(); return OF;}
-break  	               {adjust(); return BREAK;}
-nil  	                 {adjust(); return NIL;}
+for                    {adjust(); return FOR;}
+to                     {adjust(); return TO;}
+do                     {adjust(); return DO;}
+let                    {adjust(); return LET;}
+in                     {adjust(); return IN;}
+end                    {adjust(); return END;}
+of                     {adjust(); return OF;}
+break                  {adjust(); return BREAK;}
+nil                    {adjust(); return NIL;}
 function               {adjust(); return FUNCTION;}
 var                    {adjust(); return VAR;}
 type                   {adjust(); return TYPE;}
-\"[^\"]*\"                 {adjust(); yylval.sval = strdup(yytext); return STRING;}
+\"[^\"]*\"             {adjust(); yylval.sval = strdup(yytext); return STRING;}
 [a-zA-Z]+[_0-9a-zA-Z]* {adjust(); yylval.sval = strdup(yytext); return ID;}
-[0-9]+	               {adjust(); yylval.ival = atoi(yytext); return INT;}
+[0-9]+                 {adjust(); yylval.ival = atoi(yytext); return INT;}
 "/*"                   {adjust(); BEGIN(COMMENT);}
 <COMMENT>"*/"          {adjust(); BEGIN(INITIAL);}
 <COMMENT>.             {adjust();}
-.	                     {adjust(); EM_error(EM_tokPos, "illegal token");}
+.                      {adjust(); EM_error(EM_tokPos, "illegal token");}
