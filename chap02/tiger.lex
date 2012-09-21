@@ -130,10 +130,11 @@ type                   {adjust(); return TYPE;}
     \n {
          adjust();
          EM_error(EM_tokPos, "Unterminated string constant!");
+         yyterminate();
        }
 
     \\[0-9]{3} {
-                 /* ASCII code*/
+                 /* The single character with ASCII code ddd (3 decimal digits). */
                  // TODO: check this!!!
                  adjust();
                  int result;
@@ -161,9 +162,33 @@ type                   {adjust(); return TYPE;}
         }
 
     "\\^"[A-Z] {
+                 /* The control character c, for any appropriate c. (TODO) */
                  adjust();
-                 /* TODO: catch control characters! */
                }
+
+    "\\\"" {
+             /* The double-quote character inside a string. */
+             adjust();
+             *string_buf_ptr++ = '"';
+           }
+
+    "\\\\" {
+             /* The backslash character (\). */
+             adjust();
+             *string_buf_ptr++ = '\\';
+           }
+
+    \\[\t\n\f]+\\ {
+                        /* The \f...f\ sequence to be ignored, where f...f
+                           stands for a sequence of one or more formatting
+                           characters (a subset of the non-printable
+                           characters including at least space, tab, newline,
+                           formfeed).  This allows one to write long strings
+                           on more than one line, by writing \ at the end of
+                           one line and at the start of the next. */
+                        adjust();
+                        continue;
+                      }
 
     <<EOF>> {
               /* Catches EOF in the string state. */
