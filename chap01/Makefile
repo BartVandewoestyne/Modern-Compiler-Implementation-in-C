@@ -1,4 +1,4 @@
-CFLAGS = -std=c90 -g -Wall
+CFLAGS = -std=c90 -g -Wall -Wextra
 CC = gcc
 
 all: test_maxargs test_interp test_persistent_tree test_persistent_binding_tree
