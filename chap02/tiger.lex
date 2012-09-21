@@ -52,7 +52,11 @@ void adjust(void)
 
 %}
 
+%option nounput
+%option noinput
+
 %x COMMENT
+
 %%
 " "                    {adjust(); continue;}
 \n                     {adjust(); EM_newline(); continue;}
@@ -103,28 +107,21 @@ type                   {adjust(); return TYPE;}
 [0-9]+                 {adjust(); yylval.ival = atoi(yytext); return INT;}
 "/*"                   {
                          adjust();
-                         //printf("Found opening comment.");
                          commentNestingDepth++;
-                         //printf("  Commentlevel = %d\n", commentNestingDepth);
                          BEGIN(COMMENT);
                        }
 "*/"                   {
                          adjust();
-                         //printf("Found closing comment.");
                          EM_error(EM_tokPos, "Wrong nesting in comments!");
                        }
 <COMMENT>"/*"          {
                          adjust();
-                         //printf("Found opening comment.");
                          commentNestingDepth++;
-                         //printf("  Commentlevel = %d\n", commentNestingDepth);
                        }
 <COMMENT>"*/"          {
                          adjust();
-                         //printf("Found closing comment.");
                          check_commentNestingDepth();
                          commentNestingDepth--;
-                         //printf("  Commentlevel = %d\n", commentNestingDepth);
                          if (commentNestingDepth == 0)
                          {
                            BEGIN(INITIAL);
