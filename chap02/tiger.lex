@@ -17,6 +17,22 @@
    since the beginning of the file. */
 int charPos = 1;
 
+int commentNestingDepth = 0;
+
+/*
+ * Check if the comment nesting depth is smaller than 1.
+ * This function is called when we encounter a closing comment.  If the
+ * nesting depth is smaller than one, this means we cannot close any
+ * comment anymore.
+ */
+void check_commentNestingDepth()
+{
+  if (commentNestingDepth < 1)
+  {
+    EM_error(EM_tokPos, "Wrong nesting in comments!");
+  }
+}
+
 int yywrap(void)
 {
   charPos = 1;
@@ -85,7 +101,34 @@ type                   {adjust(); return TYPE;}
 \"[^\"]*\"             {adjust(); yylval.sval = strdup(yytext); return STRING;}
 [a-zA-Z]+[_0-9a-zA-Z]* {adjust(); yylval.sval = strdup(yytext); return ID;}
 [0-9]+                 {adjust(); yylval.ival = atoi(yytext); return INT;}
-"/*"                   {adjust(); BEGIN(COMMENT);}
-<COMMENT>"*/"          {adjust(); BEGIN(INITIAL);}
+"/*"                   {
+                         adjust();
+                         //printf("Found opening comment.");
+                         commentNestingDepth++;
+                         //printf("  Commentlevel = %d\n", commentNestingDepth);
+                         BEGIN(COMMENT);
+                       }
+"*/"                   {
+                         adjust();
+                         //printf("Found closing comment.");
+                         EM_error(EM_tokPos, "Wrong nesting in comments!");
+                       }
+<COMMENT>"/*"          {
+                         adjust();
+                         //printf("Found opening comment.");
+                         commentNestingDepth++;
+                         //printf("  Commentlevel = %d\n", commentNestingDepth);
+                       }
+<COMMENT>"*/"          {
+                         adjust();
+                         //printf("Found closing comment.");
+                         check_commentNestingDepth();
+                         commentNestingDepth--;
+                         //printf("  Commentlevel = %d\n", commentNestingDepth);
+                         if (commentNestingDepth == 0)
+                         {
+                           BEGIN(INITIAL);
+                         }
+                       }
 <COMMENT>.             {adjust();}
 .                      {adjust(); EM_error(EM_tokPos, "illegal token");}
