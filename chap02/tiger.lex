@@ -1,11 +1,10 @@
 /*
  * TODO:
- *   1. The string value that you return for a string literal should have all
+ *   1. Comments may be nested.
+ *   2. Detect unclosed comments (at end of file).
+ *   3. Detect unclosed strings.
+ *   4. The string value that you return for a string literal should have all
  *      the escape sequences translated into their meanings.
- *   2. There are no negative integer literals; return two separate tokens
- *      for -32.
- *   3. Detect unclosed comments (at end of file).
- *   4. Detect unclosed strings.
  */
 
 %{
