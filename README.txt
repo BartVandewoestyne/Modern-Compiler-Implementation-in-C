@@ -22,3 +22,16 @@ Finally, in Chapter 2, the strdup function is used.  This function is neither
 C90 nor C99... so the code from the book is probably some pre-C90 dialect...
 
 I am therefore simply compiling it with gcc without any -std option.
+
+
+Some other remarks:
+-------------------
+
+* In the post
+
+    https://groups.google.com/d/msg/comp.compilers/QYrE4LvCcCE/fxLyAJfxDocJ
+
+  on comp.compilers it is written that the book was originally written by
+  Appel in ML, and then translated to C and Java, so the C and Java are not
+  great examples of how to code in those languages (the Java version uses few
+  OO programming techniques).
