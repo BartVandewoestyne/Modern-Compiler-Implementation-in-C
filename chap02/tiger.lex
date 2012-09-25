@@ -22,12 +22,9 @@ int commentNesting = 0;
  * called when we encounter a closing comment.  If the nesting depth is smaller
  * than one, this means we cannot close any comment anymore.
  */
-void check_commentNesting()
+bool commentnesting_can_decrease()
 {
-  if (commentNesting < 1)
-  {
-    EM_error(EM_tokPos, "Wrong nesting in comments!");
-  }
+  return (commentNesting >= 1);
 }
 
 /*
@@ -67,69 +64,103 @@ void adjust(void)
 
 
   /* Skip spaces, carriage returns and tabs. */
-" "|\r|\t              {adjust(); continue;}
+[ \r\t] {adjust(); continue;}
 
   /* Increment the line counter if we detect a newline in the
      INITIAL or COMMENT state. */
-<INITIAL,COMMENT>\n    {
-                         adjust();
-                         EM_newline();
-                         continue;
-                       }
+<INITIAL,COMMENT>\n {
+                      adjust();
+                      EM_newline();
+                      continue;
+                    }
 
   /* Reserved words of the language. */
-while                  {adjust(); return WHILE;}
-for                    {adjust(); return FOR;}
-to                     {adjust(); return TO;}
-break                  {adjust(); return BREAK;}
-let                    {adjust(); return LET;}
-in                     {adjust(); return IN;}
-end                    {adjust(); return END;}
-function               {adjust(); return FUNCTION;}
-var                    {adjust(); return VAR;}
-type                   {adjust(); return TYPE;}
-array                  {adjust(); return ARRAY;}
-if                     {adjust(); return IF;}
-then                   {adjust(); return THEN;}
-else                   {adjust(); return ELSE;}
-do                     {adjust(); return DO;}
-of                     {adjust(); return OF;}
-nil                    {adjust(); return NIL;}
+while     {adjust(); return WHILE;}
+for       {adjust(); return FOR;}
+to        {adjust(); return TO;}
+break     {adjust(); return BREAK;}
+let       {adjust(); return LET;}
+in        {adjust(); return IN;}
+end       {adjust(); return END;}
+function  {adjust(); return FUNCTION;}
+var       {adjust(); return VAR;}
+type      {adjust(); return TYPE;}
+array     {adjust(); return ARRAY;}
+if        {adjust(); return IF;}
+then      {adjust(); return THEN;}
+else      {adjust(); return ELSE;}
+do        {adjust(); return DO;}
+of        {adjust(); return OF;}
+nil       {adjust(); return NIL;}
 
   /* Punctuation symbols of the language. */
-","                    {adjust(); return COMMA;}
-":"                    {adjust(); return COLON;}
-";"                    {adjust(); return SEMICOLON;}
-"("                    {adjust(); return LPAREN;}
-")"                    {adjust(); return RPAREN;}
-"["                    {adjust(); return LBRACK;}
-"]"                    {adjust(); return RBRACK;}
-"{"                    {adjust(); return LBRACE;}
-"}"                    {adjust(); return RBRACE;}
-"."                    {adjust(); return DOT;}
-"+"                    {adjust(); return PLUS;}
-"-"                    {adjust(); return MINUS;}
-"*"                    {adjust(); return TIMES;}
-"/"                    {adjust(); return DIVIDE;}
-"="                    {adjust(); return EQ;}
-"<>"                   {adjust(); return NEQ;}
-"<"                    {adjust(); return LT;}
-"<="                   {adjust(); return LE;}
-">"                    {adjust(); return GT;}
-">="                   {adjust(); return GE;}
-"&"                    {adjust(); return AND;}
-"|"                    {adjust(); return OR;}
-":="                   {adjust(); return ASSIGN;}
+","   {adjust(); return COMMA;}
+":"   {adjust(); return COLON;}
+";"   {adjust(); return SEMICOLON;}
+"("   {adjust(); return LPAREN;}
+")"   {adjust(); return RPAREN;}
+"["   {adjust(); return LBRACK;}
+"]"   {adjust(); return RBRACK;}
+"{"   {adjust(); return LBRACE;}
+"}"   {adjust(); return RBRACE;}
+"."   {adjust(); return DOT;}
+"+"   {adjust(); return PLUS;}
+"-"   {adjust(); return MINUS;}
+"*"   {adjust(); return TIMES;}
+"/"   {adjust(); return DIVIDE;}
+"="   {adjust(); return EQ;}
+"<>"  {adjust(); return NEQ;}
+"<"   {adjust(); return LT;}
+"<="  {adjust(); return LE;}
+">"   {adjust(); return GT;}
+">="  {adjust(); return GE;}
+"&"   {adjust(); return AND;}
+"|"   {adjust(); return OR;}
+":="  {adjust(); return ASSIGN;}
+
+  /* Identifiers. */
+[a-zA-Z]+[_0-9a-zA-Z]* {
+                         adjust();
+                         yylval.sval = strdup(yytext);
+                         return ID;
+                       }
+
+  /* Unsigned integers. */
+[0-9]+ {
+          adjust();
+          yylval.ival = atoi(yytext);
+          return INT;
+       }
 
   /* Start of a string. */
-\"                     {
-                         adjust();
+\" {
+     adjust();
 
-                         /* Initialize the string buffer pointer and switch to
-                            the STRING_STATE. */
-                         string_buf_ptr = string_buf;
-                         BEGIN(STRING_STATE);
-                       }
+     /* Initialize the string buffer pointer and switch to
+        the STRING_STATE. */
+     string_buf_ptr = string_buf;
+     BEGIN(STRING_STATE);
+   }
+
+  /* Start of a comment. */
+"/*" {
+       adjust();
+       commentNesting++;
+       BEGIN(COMMENT);
+     }
+
+  /* End of a comment before the comment even started -> ERROR! */
+"*/" {
+       adjust();
+       EM_error(EM_tokPos, "Wrong nesting in comments!");
+     }
+
+  /* Anything else that's not matched yet is an illegal token. */
+. {
+    adjust();
+    EM_error(EM_tokPos, "Illegal token!");
+  }
+
 
 <STRING_STATE>{
 
@@ -168,11 +199,13 @@ nil                    {adjust(); return NIL;}
                EM_error(EM_tokPos, "Bad escape sequence!");
              }
 
+    /* Newline escape sequence. */
     \\n {
           adjust();
           *string_buf_ptr++ = '\n';
         }
 
+    /* Tab escape sequence. */
     \\t {
           adjust();
           *string_buf_ptr++ = '\t';
@@ -234,60 +267,42 @@ nil                    {adjust(); return NIL;}
 
 }
 
-[a-zA-Z]+[_0-9a-zA-Z]* {
-                         adjust();
-                         yylval.sval = strdup(yytext);
-                         return ID;
-                       }
-
-[0-9]+ {
-          adjust();
-          yylval.ival = atoi(yytext);
-          return INT;
-       }
-
-"/*" {
-       adjust();
-       commentNesting++;
-       BEGIN(COMMENT);
-     }
-
-"*/" {
-       adjust();
-       EM_error(EM_tokPos, "Wrong nesting in comments!");
-     }
 
 <COMMENT>{
 
+    /* A comment that starts inside a comment means that the
+       comment nesting depth increases by one. */
     "/*" {
            adjust();
            commentNesting++;
            continue;
          }
 
+    /* When a comment closes, we first check if this is possible and
+       then decrease the comment nesting depth.  If we thereby arrive
+       at a nesting depth of 0, this means we are not longer inside
+       a comment and we can go back to the INITIAL state. */
     "*/" {
            adjust();
-           check_commentNesting();
-           commentNesting--;
-           if (commentNesting == 0)
-           {
-             BEGIN(INITIAL);
+           if (commentnesting_can_decrease()) {
+             commentNesting--;
+             if (commentNesting == 0) {
+               BEGIN(INITIAL);
+             }
+           } else {
+               EM_error(EM_tokPos, "Wrong nesting in comments!");
            }
          }
 
+    /* It's an error if we encounter the End Of File when inside a comment. */
     <<EOF>> {
-              //adjust();
               EM_error(EM_tokPos, "Comment still open at end of file!");
               yyterminate();
             }
 
+    /* Eat anything else inside a comment. */
     . {
         adjust();
       }
 
 }
-
-. {
-    adjust();
-    EM_error(EM_tokPos, "Illegal token!");
-  }
