@@ -28,7 +28,8 @@ bool commentnesting_can_decrease()
 }
 
 /*
- * TODO: what is the purpose of this function?  When exactly is it called???
+ * Make sure the scanner terminates by supplying our own yywrap() function and
+ * making it return 1.  See also `man flex` for more information.
  */
 int yywrap(void)
 {
