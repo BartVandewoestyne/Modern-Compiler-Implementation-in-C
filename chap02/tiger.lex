@@ -162,8 +162,8 @@ nil                    {adjust(); return NIL;}
                  *string_buf_ptr++ = result;
                }
 
+    /* Escape sequences like ’\48’ or ’\0777777’ are errors! */
     \\[0-9]+ {
-               /* Escape sequences like ’\48’ or ’\0777777’ are errors! */
                adjust();
                EM_error(EM_tokPos, "Bad escape sequence!");
              }
@@ -183,49 +183,52 @@ nil                    {adjust(); return NIL;}
      * See http://en.wikipedia.org/wiki/ASCII#ASCII_control_characters for
      * a list.
      */
-   
     "\^"[@A-Z\[\\\]\^_?] {
-               // TODO: this is not working yet!!!
                adjust();
-               char result;
-               sscanf(yytext + 1, "^%c", &result);
-               printf("Found control character in charet notation: %s (%d)\n", yytext, result);
-               *string_buf_ptr++ = result;
+               char key;
+               sscanf(yytext, "^%c", &key);
+               /* The Control key subtracts 64 from the value of the keys that
+                  it modifies. */
+               *string_buf_ptr++ = key - 64;
              }
 
+    /* The double-quote character (") inside a string. */
     "\\\"" {
-             /* The double-quote character inside a string. */
              adjust();
              *string_buf_ptr++ = '"';
            }
 
+    /* The backslash character (\) inside a string. */
     "\\\\" {
-             /* The backslash character (\). */
              adjust();
              *string_buf_ptr++ = '\\';
            }
 
-    \\[\t\n\f]+\\ {
-                        /* The \f...f\ sequence to be ignored, where f...f
-                           stands for a sequence of one or more formatting
-                           characters (a subset of the non-printable
-                           characters including at least space, tab, newline,
-                           formfeed).  This allows one to write long strings
-                           on more than one line, by writing \ at the end of
-                           one line and at the start of the next. */
-                        /* TODO: need to call EM_newline here??? */
-                        adjust();
-                        continue;
-                      }
+    /* The \f...f\ sequence to be ignored, where f...f stands for a sequence of
+       one or more formatting characters (a subset of the non-printable
+       characters including at least space, tab, newline, formfeed).  This
+       allows one to write long strings on more than one line, by writing \ at
+       the end of one line and at the start of the next. */
+    \\[ \t\n\f]+\\ {
+                     adjust();
+                     /* Handle newlines correctly. */
+                     int i;
+                     for (i = 0; yytext[i]; i++) {
+                        if (yytext[i] == '\n') {
+                          EM_newline();
+                        };
+                     }
+                     continue;
+                   }
 
+    /* Catches EOF in the string state. */
     <<EOF>> {
-              /* Catches EOF in the string state. */
               EM_error(EM_tokPos, "String not closed at end of file!");
               yyterminate();
             }
 
+    /* Normal text. */
     [^\\\n\"]* {
-                 /* Normal text. */
                  adjust();
                  char *yptr = yytext;
                  while (*yptr) {
