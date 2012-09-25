@@ -245,7 +245,7 @@ nil       {adjust(); return NIL;}
                      for (i = 0; yytext[i]; i++) {
                         if (yytext[i] == '\n') {
                           EM_newline();
-                        };
+                        }
                      }
                      continue;
                    }
