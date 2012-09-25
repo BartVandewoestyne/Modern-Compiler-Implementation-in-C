@@ -184,13 +184,9 @@ nil                    {adjust(); return NIL;}
      * a list.
      */
     "\^"[@A-Z\[\\\]\^_?] {
-               adjust();
-               char key;
-               sscanf(yytext, "^%c", &key);
-               /* The Control key subtracts 64 from the value of the keys that
-                  it modifies. */
-               *string_buf_ptr++ = key - 64;
-             }
+                           adjust();
+                           *string_buf_ptr++ = yytext[1] - '@';
+                         }
 
     /* The double-quote character (") inside a string. */
     "\\\"" {
@@ -293,5 +289,5 @@ nil                    {adjust(); return NIL;}
 
 . {
     adjust();
-    EM_error(EM_tokPos, "illegal token");
+    EM_error(EM_tokPos, "Illegal token!");
   }
