@@ -1,27 +1,26 @@
-/*
- * TODO:
- *   1. The string value that you return for a string literal should have all
- *      the escape sequences translated into their meanings.
- */
-
 %{
 
+#include <assert.h>
 #include <string.h>
 #include "util.h"
 #include "tokens.h"
 #include "errormsg.h"
 
-/* Variable to keep track of the position of each token, measured in characters
-   since the beginning of the file. */
+/*
+ * Variable to keep track of the position of each token, measured in characters
+ * since the beginning of the file.
+ */
 int charPos = 1;
 
+/*
+ * Variable to keep track of the depth that comments are nested.
+ */
 int commentNesting = 0;
 
 /*
- * Check if the comment nesting depth is smaller than 1.
- * This function is called when we encounter a closing comment.  If the
- * nesting depth is smaller than one, this means we cannot close any
- * comment anymore.
+ * Check if the comment nesting depth is smaller than 1.  This function is
+ * called when we encounter a closing comment.  If the nesting depth is smaller
+ * than one, this means we cannot close any comment anymore.
  */
 void check_commentNesting()
 {
@@ -31,6 +30,9 @@ void check_commentNesting()
   }
 }
 
+/*
+ * TODO: what is the purpose of this function?  When exactly is it called???
+ */
 int yywrap(void)
 {
   charPos = 1;
@@ -39,8 +41,9 @@ int yywrap(void)
 
 /*
  * The EM_tokPos variable of the error message module errormsg.h is continually
- * told this position by calls to the function adjust().  The parser will be
- * able to use this information in printing informative syntax error messages.
+ * told the charPos position by calls to the function adjust().  The parser
+ * will be able to use this information in printing informative syntax error
+ * messages.
  */
 void adjust(void)
 {
@@ -50,6 +53,7 @@ void adjust(void)
 
 %}
 
+/* We need these options to avoid some gcc compiler warnings. */
 %option nounput
 %option noinput
 
@@ -57,18 +61,42 @@ void adjust(void)
 
 %%
 
+  /* Helper variables for building up our strings. */
   char string_buf[512];
   char *string_buf_ptr;
 
 
-" "                    {adjust(); continue;}
+  /* Skip spaces, carriage returns and tabs. */
+" "|\r|\t              {adjust(); continue;}
+
+  /* Increment the line counter if we detect a newline in the
+     INITIAL or COMMENT state. */
 <INITIAL,COMMENT>\n    {
                          adjust();
                          EM_newline();
                          continue;
                        }
-\r                     {adjust(); continue;}
-\t                     {adjust(); continue;}
+
+  /* Reserved words of the language. */
+while                  {adjust(); return WHILE;}
+for                    {adjust(); return FOR;}
+to                     {adjust(); return TO;}
+break                  {adjust(); return BREAK;}
+let                    {adjust(); return LET;}
+in                     {adjust(); return IN;}
+end                    {adjust(); return END;}
+function               {adjust(); return FUNCTION;}
+var                    {adjust(); return VAR;}
+type                   {adjust(); return TYPE;}
+array                  {adjust(); return ARRAY;}
+if                     {adjust(); return IF;}
+then                   {adjust(); return THEN;}
+else                   {adjust(); return ELSE;}
+do                     {adjust(); return DO;}
+of                     {adjust(); return OF;}
+nil                    {adjust(); return NIL;}
+
+  /* Punctuation symbols of the language. */
 ","                    {adjust(); return COMMA;}
 ":"                    {adjust(); return COLON;}
 ";"                    {adjust(); return SEMICOLON;}
@@ -92,34 +120,22 @@ void adjust(void)
 "&"                    {adjust(); return AND;}
 "|"                    {adjust(); return OR;}
 ":="                   {adjust(); return ASSIGN;}
-array                  {adjust(); return ARRAY;}
-if                     {adjust(); return IF;}
-then                   {adjust(); return THEN;}
-else                   {adjust(); return ELSE;}
-while                  {adjust(); return WHILE;}
-for                    {adjust(); return FOR;}
-to                     {adjust(); return TO;}
-do                     {adjust(); return DO;}
-let                    {adjust(); return LET;}
-in                     {adjust(); return IN;}
-end                    {adjust(); return END;}
-of                     {adjust(); return OF;}
-break                  {adjust(); return BREAK;}
-nil                    {adjust(); return NIL;}
-function               {adjust(); return FUNCTION;}
-var                    {adjust(); return VAR;}
-type                   {adjust(); return TYPE;}
 
+  /* Start of a string. */
 \"                     {
                          adjust();
+
+                         /* Initialize the string buffer pointer and switch to
+                            the STRING_STATE. */
                          string_buf_ptr = string_buf;
                          BEGIN(STRING_STATE);
                        }
 
 <STRING_STATE>{
 
+    /* Closing quote: terminate the string buffer pointer with zero and copy 
+     * its value to where it belongs. */
     \" {
-          /* Closing quote, all done. */
           adjust();
           BEGIN(INITIAL);
           *string_buf_ptr = '\0';
@@ -127,20 +143,21 @@ type                   {adjust(); return TYPE;}
           return STRING;
        }
 
+    /* A newline somewhere in a string is an unterminated string error. */
     \n {
          adjust();
          EM_error(EM_tokPos, "Unterminated string constant!");
          yyterminate();
        }
 
+    /* The single character with ASCII code ddd (3 decimal digits). */
     \\[0-9]{3} {
-                 /* The single character with ASCII code ddd (3 decimal digits). */
-                 // TODO: check this!!!
                  adjust();
                  int result;
-                 (void) sscanf( yytext + 1, "%d", &result );
-                 if ( result > 0xff ) {
-                   /* error, constant is out-of-bounds */
+                 sscanf(yytext + 1, "%d", &result);
+                 printf("result = %d\n", result);
+                 if (result > 0xff) {
+                   EM_error(EM_tokPos, "ASCII decimal value out of bounds!");
                  }
                  *string_buf_ptr++ = result;
                }
@@ -161,10 +178,20 @@ type                   {adjust(); return TYPE;}
           *string_buf_ptr++ = '\t';
         }
 
-    "\\^"[A-Z] {
-                 /* The control character c, for any appropriate c. (TODO) */
-                 adjust();
-               }
+    /*
+     * The control character c, for any appropriate c, in caret notation.
+     * See http://en.wikipedia.org/wiki/ASCII#ASCII_control_characters for
+     * a list.
+     */
+   
+    "\^"[@A-Z\[\\\]\^_?] {
+               // TODO: this is not working yet!!!
+               adjust();
+               char result;
+               sscanf(yytext + 1, "^%c", &result);
+               printf("Found control character in charet notation: %s (%d)\n", yytext, result);
+               *string_buf_ptr++ = result;
+             }
 
     "\\\"" {
              /* The double-quote character inside a string. */
@@ -186,6 +213,7 @@ type                   {adjust(); return TYPE;}
                            formfeed).  This allows one to write long strings
                            on more than one line, by writing \ at the end of
                            one line and at the start of the next. */
+                        /* TODO: need to call EM_newline here??? */
                         adjust();
                         continue;
                       }
