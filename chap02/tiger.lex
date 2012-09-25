@@ -1,3 +1,8 @@
+/*
+ * TODO:
+ *   1. Support strings longer than 512 characters.
+ */
+
 %{
 
 #include <assert.h>
