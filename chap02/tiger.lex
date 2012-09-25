@@ -1,12 +1,8 @@
-/*
- * TODO:
- *   1. Support strings longer than 512 characters.
- */
-
 %{
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 #include "util.h"
 #include "tokens.h"
 #include "errormsg.h"
@@ -30,6 +26,42 @@ int commentNesting = 0;
 bool commentnesting_can_decrease()
 {
   return (commentNesting >= 1);
+}
+
+/* Helper variables for building up strings from characters. */
+const int INITIAL_BUFFER_LENGTH = 32;
+char *string_buffer;
+unsigned int string_buffer_capacity;
+
+/*
+ * Initialize the string buffer.
+ */
+void init_string_buffer(void)
+{
+  string_buffer = checked_malloc(INITIAL_BUFFER_LENGTH);
+  string_buffer[0] = 0;
+  string_buffer_capacity = INITIAL_BUFFER_LENGTH;
+}
+
+/*
+ * Append the given character to the string buffer and double
+ * the buffer's capacity if necessary.
+ */
+static void append_char_to_stringbuffer(char ch)
+{
+    size_t new_length = strlen(string_buffer) + 1;
+    if (new_length == string_buffer_capacity)
+    {
+        char *temp;
+
+        string_buffer_capacity *= 2;
+        temp = checked_malloc(string_buffer_capacity);
+        memcpy(temp, string_buffer, new_length);
+        free(string_buffer);
+        string_buffer = temp;
+    }
+    string_buffer[new_length - 1] = ch;
+    string_buffer[new_length] = 0;
 }
 
 /*
@@ -63,11 +95,6 @@ void adjust(void)
 %x COMMENT STRING_STATE
 
 %%
-
-  /* Helper variables for building up our strings. */
-  char string_buf[512];
-  char *string_buf_ptr;
-
 
   /* Skip spaces, carriage returns and tabs. */
 [ \r\t] {adjust(); continue;}
@@ -141,10 +168,7 @@ nil       {adjust(); return NIL;}
   /* Start of a string. */
 \" {
      adjust();
-
-     /* Initialize the string buffer pointer and switch to
-        the STRING_STATE. */
-     string_buf_ptr = string_buf;
+     init_string_buffer();
      BEGIN(STRING_STATE);
    }
 
@@ -175,8 +199,7 @@ nil       {adjust(); return NIL;}
     \" {
           adjust();
           BEGIN(INITIAL);
-          *string_buf_ptr = '\0';
-          yylval.sval = strdup(string_buf);
+          yylval.sval = strdup(string_buffer);
           return STRING;
        }
 
@@ -196,7 +219,7 @@ nil       {adjust(); return NIL;}
                  if (result > 0xff) {
                    EM_error(EM_tokPos, "ASCII decimal value out of bounds!");
                  }
-                 *string_buf_ptr++ = result;
+                 append_char_to_stringbuffer(result);
                }
 
     /* Escape sequences like ’\48’ or ’\0777777’ are errors! */
@@ -208,13 +231,13 @@ nil       {adjust(); return NIL;}
     /* Newline escape sequence. */
     \\n {
           adjust();
-          *string_buf_ptr++ = '\n';
+          append_char_to_stringbuffer('\n');
         }
 
     /* Tab escape sequence. */
     \\t {
           adjust();
-          *string_buf_ptr++ = '\t';
+          append_char_to_stringbuffer('\t');
         }
 
     /*
@@ -224,19 +247,19 @@ nil       {adjust(); return NIL;}
      */
     "\^"[@A-Z\[\\\]\^_?] {
                            adjust();
-                           *string_buf_ptr++ = yytext[1] - '@';
+                           append_char_to_stringbuffer(yytext[1]-'@');
                          }
 
     /* The double-quote character (") inside a string. */
     "\\\"" {
              adjust();
-             *string_buf_ptr++ = '"';
+             append_char_to_stringbuffer('"');
            }
 
     /* The backslash character (\) inside a string. */
     "\\\\" {
              adjust();
-             *string_buf_ptr++ = '\\';
+             append_char_to_stringbuffer('\\');
            }
 
     /* The \f...f\ sequence to be ignored, where f...f stands for a sequence of
@@ -267,7 +290,7 @@ nil       {adjust(); return NIL;}
                  adjust();
                  char *yptr = yytext;
                  while (*yptr) {
-                   *string_buf_ptr++ = *yptr++;
+                   append_char_to_stringbuffer(*yptr++);
                  }
                }
 
