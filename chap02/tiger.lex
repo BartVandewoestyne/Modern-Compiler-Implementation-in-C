@@ -18,16 +18,6 @@ int charPos = 1;
  */
 int commentNesting = 0;
 
-/*
- * Check if the comment nesting depth is smaller than 1.  This function is
- * called when we encounter a closing comment.  If the nesting depth is smaller
- * than one, this means we cannot close any comment anymore.
- */
-bool commentnesting_can_decrease()
-{
-  return (commentNesting >= 1);
-}
-
 /* Helper variables for building up strings from characters. */
 const int INITIAL_BUFFER_LENGTH = 32;
 char *string_buffer;
@@ -182,7 +172,7 @@ nil       {adjust(); return NIL;}
   /* End of a comment before the comment even started -> ERROR! */
 "*/" {
        adjust();
-       EM_error(EM_tokPos, "Wrong nesting in comments!");
+       EM_error(EM_tokPos, "Found closing comment tag while no comment was open!");
      }
 
   /* Anything else that's not matched yet is an illegal token. */
@@ -313,13 +303,9 @@ nil       {adjust(); return NIL;}
        a comment and we can go back to the INITIAL state. */
     "*/" {
            adjust();
-           if (commentnesting_can_decrease()) {
-             commentNesting--;
-             if (commentNesting == 0) {
-               BEGIN(INITIAL);
-             }
-           } else {
-               EM_error(EM_tokPos, "Wrong nesting in comments!");
+           commentNesting--;
+           if (commentNesting == 0) {
+             BEGIN(INITIAL);
            }
          }
 
