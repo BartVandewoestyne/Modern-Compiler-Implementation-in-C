@@ -1,5 +1,11 @@
-/* TODO: THIS FILE IS ABSOLUTELY UNFINISHED AND NOT WORKING YET !!! */
-/* TODO: how to handle string and int as type */
+/*
+ * THIS FILE IS ABSOLUTELY UNFINISHED AND NOT WORKING YET !!!
+ *
+ * TODO:
+ *   * How to handle string and int as type?
+ *   * Precedence of operators.
+ *   * Associativity of operators.
+ */
 
 %{
 #include <stdio.h>
@@ -35,13 +41,20 @@ void yyerror(char *s)
 
 %start program
 
+/* Associativity of operators. */
+%nonassoc EQ NEQ
+%left PLUS MINUS
+%left TIMES DIV
+%left UMINUS
+
 %%
 
 program: expression
 
 /* DECLARATIONS */
 
-declaration_sequence: declaration /* TODO: possibly empty! */
+declaration_sequence: /* empty string also possible*/
+                    | declaration declaration_sequence
 
 declaration: type_declaration
            | variable_declaration
@@ -50,14 +63,17 @@ declaration: type_declaration
 
 /* DATA TYPES */
 
-type_declaration: TYPE ID EQ type /* TODO: how to differ between id and type-id ??? */
+type_declaration: TYPE ID EQ type
 
 type: ID
-    | type_fields /* TODO: braces */
+    | LBRACE type_fields RBRACE
     | ARRAY OF ID
 
-type_fields: ID COLON ID /* TODO: comma-stuff */
-           /* TODO: empty ??? */
+type_fields: /* empty string */
+           | type_fields_list
+
+type_fields_list: ID COLON ID
+                | type_fields_list COMMA ID COLON ID
 
 
 /* VARIABLES */
@@ -68,57 +84,61 @@ variable_declaration: VAR ID ASSIGN expression
 
 /* FUNCTIONS */
 function_declaration: FUNCTION ID LPAREN type_fields RPAREN EQ expression
-                    | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression /* TODO: type-id */
+                    | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression
 
 
 /* VARIABLES AND EXPRESSIONS */
+
 lvalue: ID
       | lvalue DOT ID
       | lvalue LBRACK expression RBRACK
 
-expression: ID
-          | NIL
-          | lvalue
-          | expression_sequence
-          | LPAREN RPAREN
-          | INT
-          | STRING
-          | MINUS INT
-          | ID LPAREN RPAREN
-          | ID LPAREN expression RPAREN /* TODO: multiple expressions */
-          | INT PLUS INT
+valueless_expression: procedure_call
+                    | assignment
+                    | if_then
+                    | while
+                    | break
+                    | if_then_else /* TODO: only sometimes is this valueless */
+
+no_value_expression: LPAREN RPAREN
+                   | LET declaration_sequence IN END
+
+negation: MINUS INT
+
+function_call: ID LPAREN RPAREN
+             | ID LPAREN expression_list_columned RPAREN
+
+arithmetic: INT PLUS INT
           | INT MINUS INT
           | INT TIMES INT
           | INT DIVIDE INT
-          | INT EQ INT
+
+/* TODO: EQ and NEQ can also be applied to two record or array operands of the same type */
+comparison: INT EQ INT
           | INT NEQ INT
           | INT GT INT
           | INT LT INT
           | INT GE INT
           | INT LE INT
-          | STRING EQ STRING
-          | STRING NEQ STRING
-          | STRING GT STRING
-          | STRING LT STRING
-          | STRING GE STRING
-          | STRING LE STRING
-          | INT AND INT
-          | INT OR INT
-          | assignment
-          | if_then_else
-          | if_then
-          | while
-          | for
-          | break
-          | let
 
-expression_sequence: LPAREN expression SEMICOLON expression RPAREN
+string_comparison: STRING EQ STRING
+                 | STRING NEQ STRING
+                 | STRING GT STRING
+                 | STRING LT STRING
+                 | STRING GE STRING
+                 | STRING LE STRING
 
-assignment: lvalue ASSIGN expression
+boolean_operators: INT AND INT
+                 | INT OR INT
 
-if_then: IF expression THEN expression
+record_creation: ID LBRACE ID EQ expression RBRACE /* TODO: multiple fields */
+               | ID LBRACE RBRACE
+
+array_creation: ID LBRACK expression RBRACK OF expression
 
 if_then_else: IF expression THEN expression ELSE expression
+
+if_then: IF expression THEN expression
 
 while: WHILE expression DO expression
 
@@ -127,3 +147,33 @@ for: FOR ID ASSIGN expression TO expression DO expression
 break: BREAK
 
 let: LET declaration_sequence IN expression_sequence END
+
+expression: lvalue
+          | valueless_expression
+          | NIL
+          | sequencing
+          | no_value_expression
+          | INT
+          | STRING
+          | negation %prec UMINUS
+          | function_call
+          | arithmetic
+          | comparison
+          | string_comparison
+          | boolean_operators
+          | record_creation
+          | array_creation
+          | for
+          | let
+
+sequencing: LPAREN expression_list_semicolumned RPAREN
+
+expression_sequence: expression SEMICOLON expression
+
+expression_list_semicolumned: expression
+                            | expression_list_semicolumned SEMICOLON expression
+
+expression_list_columned: expression
+                        | expression_list_columned COLON expression
+
+assignment: lvalue ASSIGN expression
