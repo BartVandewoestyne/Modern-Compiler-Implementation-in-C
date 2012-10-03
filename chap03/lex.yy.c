@@ -28,8 +28,6 @@ extern struct yysvf yysvec[], *yybgin;
 /* Copyright (c) 1997 Andrew W. Appel.  Licensed software: see LICENSE file */
 #include <string.h>
 #include "util.h"
-#include "symbol.h"
-#include "absyn.h"
 #include "y.tab.h"
 #include "errormsg.h"
 
