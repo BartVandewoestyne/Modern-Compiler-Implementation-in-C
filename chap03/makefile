@@ -29,4 +29,4 @@ util.o: util.c util.h
 	$(CC) $(CFLAGS) -c util.c
 
 clean: 
-	rm -f a.out util.o parsetest.o lex.yy.o errormsg.o lex.yy.c y.tab.c y.tab.h y.tab.o
+	rm -f a.out util.o parsetest.o lex.yy.o errormsg.o lex.yy.c y.tab.c y.tab.h y.tab.o y.output
