@@ -1,3 +1,6 @@
+/* TODO: THIS FILE IS ABSOLUTELY UNFINISHED AND NOT WORKING YET !!! */
+/* TODO: how to handle string and int as type */
+
 %{
 #include <stdio.h>
 #include "util.h"
@@ -34,10 +37,93 @@ void yyerror(char *s)
 
 %%
 
-program:	exp
+program: expression
 
-exp:   ID
+/* DECLARATIONS */
+
+declaration_sequence: declaration /* TODO: possibly empty! */
+
+declaration: type_declaration
+           | variable_declaration
+           | function_declaration
 
 
+/* DATA TYPES */
 
-	
+type_declaration: TYPE ID EQ type /* TODO: how to differ between id and type-id ??? */
+
+type: ID
+    | type_fields /* TODO: braces */
+    | ARRAY OF ID
+
+type_fields: ID COLON ID /* TODO: comma-stuff */
+           /* TODO: empty ??? */
+
+
+/* VARIABLES */
+
+variable_declaration: VAR ID ASSIGN expression
+                    | VAR ID COLON ID ASSIGN expression
+
+
+/* FUNCTIONS */
+function_declaration: FUNCTION ID LPAREN type_fields RPAREN EQ expression
+                    | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression /* TODO: type-id */
+
+
+/* VARIABLES AND EXPRESSIONS */
+lvalue: ID
+      | lvalue DOT ID
+      | lvalue LBRACK expression RBRACK
+
+expression: ID
+          | NIL
+          | lvalue
+          | expression_sequence
+          | LPAREN RPAREN
+          | INT
+          | STRING
+          | MINUS INT
+          | ID LPAREN RPAREN
+          | ID LPAREN expression RPAREN /* TODO: multiple expressions */
+          | INT PLUS INT
+          | INT MINUS INT
+          | INT TIMES INT
+          | INT DIVIDE INT
+          | INT EQ INT
+          | INT NEQ INT
+          | INT GT INT
+          | INT LT INT
+          | INT GE INT
+          | INT LE INT
+          | STRING EQ STRING
+          | STRING NEQ STRING
+          | STRING GT STRING
+          | STRING LT STRING
+          | STRING GE STRING
+          | STRING LE STRING
+          | INT AND INT
+          | INT OR INT
+          | assignment
+          | if_then_else
+          | if_then
+          | while
+          | for
+          | break
+          | let
+
+expression_sequence: LPAREN expression SEMICOLON expression RPAREN
+
+assignment: lvalue ASSIGN expression
+
+if_then: IF expression THEN expression
+
+if_then_else: IF expression THEN expression ELSE expression
+
+while: WHILE expression DO expression
+
+for: FOR ID ASSIGN expression TO expression DO expression
+
+break: BREAK
+
+let: LET declaration_sequence IN expression_sequence END
