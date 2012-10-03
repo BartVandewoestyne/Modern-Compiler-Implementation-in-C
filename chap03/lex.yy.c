@@ -18,7 +18,7 @@ int yymorfg;
 extern unsigned char *yysptr, yysbuf[];
 int yytchar;
 /* FILE *yyin = {stdin}, *yyout = {stdout}; */ /* GIVES COMPILER ERROR */
-FILE *yyin, *yyout;                            /* WORKS, BUT REMAINING QUESTION: where and how to initialize yyin and yyout ??? */
+FILE *yyin, *yyout;                      /* WORKS, BUT REMAINING QUESTION: where and how to initialize yyin and yyout ??? */
 extern int yylineno;
 struct yysvf { 
 	struct yywork *yystoff;
@@ -75,6 +75,8 @@ void adjust(void)
 # define YYNEWLINE 10
 yylex(){
 int nstr; extern int yyprevious;
+/* QUESTION: is this the correct place and method to initialize stdin and stdout? */
+yyin = stdin; yyout = stdout;
 while((nstr = yylook()) >= 0)
 yyfussy: switch(nstr){
 case 0:
