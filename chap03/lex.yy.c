@@ -17,7 +17,8 @@ int yyleng; extern unsigned char yytext[];
 int yymorfg;
 extern unsigned char *yysptr, yysbuf[];
 int yytchar;
-FILE *yyin = {stdin}, *yyout = {stdout};
+/* FILE *yyin = {stdin}, *yyout = {stdout}; */ /* GIVES COMPILER ERROR */
+FILE *yyin, *yyout;                            /* WORKS, BUT REMAINING QUESTION: where and how to initialize yyin and yyout ??? */
 extern int yylineno;
 struct yysvf { 
 	struct yywork *yystoff;
