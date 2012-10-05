@@ -41,12 +41,13 @@ void yyerror(char *s)
 
 %start program
 
+%left SEMICOLON
 %left ASSIGN
 %left OR
 %left AND
 %nonassoc EQ NEQ GT LT GE LE
 %left PLUS MINUS
-%left TIMES DIV
+%left TIMES DIVIDE
 %left UMINUS
 
 %%
