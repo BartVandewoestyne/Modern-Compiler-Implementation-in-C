@@ -1,0 +1,7 @@
+/* Two syntax errors. */
+let
+  var x := int
+  var y := int
+in
+  x +/ y ; x -/ y
+end
