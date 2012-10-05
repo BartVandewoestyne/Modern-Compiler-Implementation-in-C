@@ -1,0 +1,21 @@
+("";
+
+ "test";
+ 
+ "line1\nline2\nline3";
+ 
+ "col1\tcol2\tcol3";
+ 
+ "\065";
+ 
+ "\100";
+ 
+ "\"";
+ 
+ "\\";
+ 
+ "foo\
+ \bar";
+ 
+ "foo2\\n
+ \bar2")

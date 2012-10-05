@@ -207,7 +207,6 @@ nil       {adjust(); return NIL;}
                  adjust();
                  int result;
                  sscanf(yytext + 1, "%d", &result);
-                 printf("result = %d\n", result);
                  if (result > 0xff) {
                    EM_error(EM_tokPos, "ASCII decimal value out of bounds!");
                  }
