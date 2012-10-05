@@ -252,11 +252,6 @@
  "\253";
  "\254";
  "\255";
- "\256";
- "\257";
 
  "\123abc";  /* Results in {abc */
- "\048";     /* Results in 0 */
- "\48";      /* Must give error! */
- "\7777";    /* Must give error! */
- "\1234abc") /* Must give error! */
+ "\048")     /* Results in 0 */
