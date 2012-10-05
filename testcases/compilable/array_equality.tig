@@ -1,0 +1,7 @@
+let
+  type intArray = array of int
+  var array1 := intArray [ 5 ] of 0
+  var array2 := intArray [ 5 ] of 0
+in
+  array1 = array2
+end
