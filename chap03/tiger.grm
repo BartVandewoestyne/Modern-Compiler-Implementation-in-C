@@ -90,9 +90,9 @@ expression
         | arithmetic_expression
         | comparison
         | boolean_expression
-        | array_creation
         | MINUS expression %prec UMINUS
         | ID LBRACE field_assignments RBRACE
+        | ID LBRACK expression RBRACK OF expression
         | LPAREN RPAREN
         | LPAREN expression_sequence RPAREN
         | LET declaration_sequence IN END
@@ -105,6 +105,9 @@ lvalue_extension
         : /* empty */
         | DOT ID lvalue_extension
         | LBRACK expression RBRACK lvalue_extension
+
+assignment
+        : lvalue ASSIGN expression
 
 function_call
         : ID LPAREN RPAREN
@@ -138,9 +141,6 @@ field_assignment_list
 
 field_assignment
         : ID EQ expression
-
-array_creation
-        : ID LBRACK expression RBRACK OF expression
 
 declaration_sequence
         : /* empty */
@@ -190,6 +190,3 @@ expression_sequence
 expression_list
         : expression
         | expression_list COMMA expression
-
-assignment
-        : lvalue ASSIGN expression
