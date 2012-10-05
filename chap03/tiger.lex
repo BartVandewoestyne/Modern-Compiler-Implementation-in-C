@@ -175,12 +175,14 @@ nil       {adjust(); return NIL;}
 "*/" {
        adjust();
        EM_error(EM_tokPos, "Found closing comment tag while no comment was open!");
+       yyterminate();
      }
 
   /* Anything else that's not matched yet is an illegal token. */
 . {
     adjust();
     EM_error(EM_tokPos, "Illegal token!");
+    yyterminate();
   }
 
 
@@ -209,6 +211,7 @@ nil       {adjust(); return NIL;}
                  sscanf(yytext + 1, "%d", &result);
                  if (result > 0xff) {
                    EM_error(EM_tokPos, "ASCII decimal value out of bounds!");
+                   yyterminate();
                  }
                  append_char_to_stringbuffer(result);
                }
@@ -217,6 +220,7 @@ nil       {adjust(); return NIL;}
     \\[0-9]+ {
                adjust();
                EM_error(EM_tokPos, "Bad escape sequence!");
+               yyterminate();
              }
 
     /* Newline escape sequence. */
