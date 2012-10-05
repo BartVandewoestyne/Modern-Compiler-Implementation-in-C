@@ -1,10 +1,26 @@
 /*
- * THIS FILE IS ABSOLUTELY UNFINISHED AND NOT WORKING YET !!!
+ * SHIFT-REDUCE CONFLICTS:
  *
- * TODO:
- *   * How to handle string and int as type?
- *   * Precedence of operators.
- *   * Associativity of operators.
+ *   IF expression THEN expression
+ *   (if x=1 then a = 1) + 2
+ *   or
+ *   (if x=1 then a = 1 + 2)
+ *
+ *   IF expression THEN expression ELSE expression
+ *   (if x=1 then a = 1 else a = 1) + 2
+ *   or
+ *   (if x=1 then a = 1 else a = 1 + 2)
+ *
+ *   WHILE expression DO expression
+ *   (while x=1 do a = 1) + 2
+ *   or
+ *   (while x=1 do a = 1 + 2)
+ *
+ *   ID LBRACK expression RBRACK OF expression
+ *   (x[3] of 1) + 2
+ *   or
+ *   (x[3] of 1 + 2)
+ *
  */
 
 %{
@@ -41,6 +57,9 @@ void yyerror(char *s)
 
 %start program
 
+%nonassoc DO OF
+%nonassoc THEN /* ELSE must come after THEN */
+%nonassoc ELSE
 %left SEMICOLON
 %left ASSIGN
 %left OR
