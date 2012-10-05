@@ -78,16 +78,16 @@ void yyerror(char *s)
 program: expression
 
 expression
-        : lvalue
-        | assignment
+        : INT
+        | STRING
         | BREAK
+        | NIL
+        | lvalue
+        | assignment
         | selection
         | iteration
-        | NIL
         | LPAREN expression_sequence RPAREN
         | no_value_expression
-        | INT
-        | STRING
         | MINUS expression %prec UMINUS
         | function_call
         | arithmetic_expression
