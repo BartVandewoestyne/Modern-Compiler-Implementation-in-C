@@ -21,6 +21,10 @@
  *   or
  *   (x[3] of 1 + 2)
  *
+ * References:
+ *
+ *   [1] http://linuxgazette.net/issue93/ramankutty.html
+ *
  */
 
 %{
