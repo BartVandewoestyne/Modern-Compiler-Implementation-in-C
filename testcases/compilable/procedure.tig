@@ -1,0 +1,6 @@
+let
+  function my_procedure() =
+       print("my_procedure()\n")
+in
+  my_procedure()
+end

@@ -1,0 +1,6 @@
+let
+  function my_function(int:a) : int =
+       2*a
+in
+  my_function()
+end
