@@ -86,15 +86,16 @@ expression
         | assignment
         | selection
         | iteration
-        | LPAREN expression_sequence RPAREN
-        | no_value_expression
-        | MINUS expression %prec UMINUS
         | function_call
         | arithmetic_expression
         | comparison
         | boolean_expression
-        | record_creation
         | array_creation
+        | MINUS expression %prec UMINUS
+        | ID LBRACE field_assignments RBRACE
+        | LPAREN RPAREN
+        | LPAREN expression_sequence RPAREN
+        | LET declaration_sequence IN END
         | LET declaration_sequence IN expression_sequence END
 
 lvalue
@@ -104,10 +105,6 @@ lvalue_extension
         : /* empty */
         | DOT ID lvalue_extension
         | LBRACK expression RBRACK lvalue_extension
-
-no_value_expression
-        : LPAREN RPAREN
-        | LET declaration_sequence IN END
 
 function_call
         : ID LPAREN RPAREN
@@ -131,16 +128,13 @@ boolean_expression
         : expression AND expression
         | expression OR expression
 
-record_creation
-        : ID LBRACE field_assignments RBRACE
-
 field_assignments
         : /* empty */
-        | field_assignments_commad
+        | field_assignment_list
 
-field_assignments_commad
+field_assignment_list
         : field_assignment
-        | field_assignments_commad COMMA field_assignment
+        | field_assignment_list COMMA field_assignment
 
 field_assignment
         : ID EQ expression
@@ -167,11 +161,11 @@ type
 
 type_fields
         : /* empty */
-        | type_fields_list
+        | type_field_list
 
-type_fields_list
+type_field_list
         : ID COLON ID
-        | type_fields_list COMMA ID COLON ID
+        | type_field_list COMMA ID COLON ID
 
 variable_declaration
         : VAR ID ASSIGN expression
