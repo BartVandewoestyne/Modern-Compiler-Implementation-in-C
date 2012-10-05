@@ -77,135 +77,134 @@ void yyerror(char *s)
 
 program: expression
 
+expression
+        : lvalue
+        | assignment
+        | while
+        | BREAK
+        | if_then
+        | if_then_else
+        | NIL
+        | LPAREN expression_sequence RPAREN
+        | no_value_expression
+        | INT
+        | STRING
+        | MINUS expression %prec UMINUS
+        | function_call
+        | arithmetic_expression
+        | comparison
+        | boolean_expression
+        | record_creation
+        | array_creation
+        | for
+        | let
 
-/* EXPRESSIONS */
+lvalue
+        : ID lvalue_extension
 
-expression: lvalue
-          | valueless_expression
-          | NIL
-          | sequencing
-          | no_value_expression
-          | INT
-          | STRING
-          | MINUS expression %prec UMINUS
-          | function_call
-          | arithmetic
-          | comparison
-          | boolean_operators
-          | record_creation
-          | array_creation
-          | for
-          | let
+lvalue_extension
+        : /* empty */
+        | DOT ID lvalue_extension
+        | LBRACK expression RBRACK lvalue_extension
 
+no_value_expression
+        : LPAREN RPAREN
+        | LET declaration_sequence IN END
 
-/* LVALUES */
+function_call
+        : ID LPAREN RPAREN
+        | ID LPAREN expression_list_commad RPAREN
 
-lvalue: ID lvalue_extension
+arithmetic_expression
+        : expression PLUS expression
+        | expression MINUS expression
+        | expression TIMES expression
+        | expression DIVIDE expression
 
-lvalue_extension: /* empty */
-                | DOT ID lvalue_extension
-                | LBRACK expression RBRACK lvalue_extension
+comparison
+        : expression EQ expression
+        | expression NEQ expression
+        | expression GT expression
+        | expression LT expression 
+        | expression GE expression 
+        | expression LE expression 
 
+boolean_expression
+        : expression AND expression
+        | expression OR expression
 
-/* TODO: procedure calls */
-valueless_expression: assignment
-                    | if_then
-                    | while
-                    | break
-                    | if_then_else /* TODO: only sometimes is this valueless */
+record_creation
+        : ID LBRACE field_assignments RBRACE
 
-sequencing: LPAREN expression_sequence RPAREN
+field_assignments
+        : /* empty */
+        | field_assignments_commad
 
-no_value_expression: LPAREN RPAREN
-                   | LET declaration_sequence IN END
+field_assignments_commad
+        : field_assignment
+        | field_assignments_commad COMMA field_assignment
 
-function_call: ID LPAREN RPAREN
-             | ID LPAREN expression_list_commad RPAREN
+field_assignment
+        : ID EQ expression
 
-arithmetic: expression PLUS expression
-          | expression MINUS expression
-          | expression TIMES expression
-          | expression DIVIDE expression
+array_creation
+        : ID LBRACK expression RBRACK OF expression
 
-/* TODO: EQ and NEQ can also be applied to two record or array operands of the same type */
-comparison: expression EQ expression
-          | expression NEQ expression
-          | expression GT expression
-          | expression LT expression 
-          | expression GE expression 
-          | expression LE expression 
+for
+        : FOR ID ASSIGN expression TO expression DO expression
 
-boolean_operators: expression AND expression
-                 | expression OR expression
+let
+        : LET declaration_sequence IN expression_sequence END
 
-record_creation: ID LBRACE field_assignments RBRACE
+declaration_sequence
+        : /* empty */
+        | declaration declaration_sequence
 
-field_assignments: /* empty */
-                 | field_assignments_commad
+declaration
+        : type_declaration
+        | variable_declaration
+        | function_declaration
 
-field_assignments_commad: field_assignment
-                        | field_assignments_commad COMMA field_assignment
+type_declaration
+        : TYPE ID EQ type
 
-field_assignment: ID EQ expression
+type
+        : ID
+        | LBRACE type_fields RBRACE
+        | ARRAY OF ID
 
-array_creation: ID LBRACK expression RBRACK OF expression
+type_fields
+        : /* empty */
+        | type_fields_list
 
-for: FOR ID ASSIGN expression TO expression DO expression
+type_fields_list
+        : ID COLON ID
+        | type_fields_list COMMA ID COLON ID
 
-let: LET declaration_sequence IN expression_sequence END
+variable_declaration
+        : VAR ID ASSIGN expression
+        | VAR ID COLON ID ASSIGN expression
 
+function_declaration
+        : FUNCTION ID LPAREN type_fields RPAREN EQ expression
+        | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression
 
-/* DECLARATIONS */
+if_then_else
+        : IF expression THEN expression ELSE expression
 
-declaration_sequence: /* empty string also possible*/
-                    | declaration declaration_sequence
+if_then
+        : IF expression THEN expression
 
-declaration: type_declaration
-           | variable_declaration
-           | function_declaration
+while
+        : WHILE expression DO expression
 
+expression_sequence
+        : expression
+        | expression_sequence SEMICOLON expression
 
-/* DATA TYPES */
+expression_list_commad
+        : expression
+        | expression_list_commad COMMA expression
 
-type_declaration: TYPE ID EQ type
-
-type: ID
-    | LBRACE type_fields RBRACE
-    | ARRAY OF ID
-
-type_fields: /* empty string */
-           | type_fields_list
-
-type_fields_list: ID COLON ID
-                | type_fields_list COMMA ID COLON ID
-
-
-/* VARIABLES */
-
-variable_declaration: VAR ID ASSIGN expression
-                    | VAR ID COLON ID ASSIGN expression
-
-
-/* FUNCTIONS */
-
-function_declaration: FUNCTION ID LPAREN type_fields RPAREN EQ expression
-                    | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression
-
-
-/* VARIABLES AND EXPRESSIONS */
-
-if_then_else: IF expression THEN expression ELSE expression
-
-if_then: IF expression THEN expression
-
-while: WHILE expression DO expression
-
-break: BREAK
-
-expression_sequence: expression
-                   | expression_sequence SEMICOLON expression
-
-expression_list_commad: expression
-                        | expression_list_commad COMMA expression
-
-assignment: lvalue ASSIGN expression
+assignment
+        : lvalue ASSIGN expression
