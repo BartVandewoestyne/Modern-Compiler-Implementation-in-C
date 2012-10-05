@@ -95,7 +95,7 @@ expression
         | boolean_expression
         | record_creation
         | array_creation
-        | let
+        | LET declaration_sequence IN expression_sequence END
 
 lvalue
         : ID lvalue_extension
@@ -147,10 +147,6 @@ field_assignment
 
 array_creation
         : ID LBRACK expression RBRACK OF expression
-
-
-let
-        : LET declaration_sequence IN expression_sequence END
 
 declaration_sequence
         : /* empty */
