@@ -80,10 +80,9 @@ program: expression
 expression
         : lvalue
         | assignment
-        | while
         | BREAK
-        | if_then
-        | if_then_else
+        | selection
+        | iteration
         | NIL
         | LPAREN expression_sequence RPAREN
         | no_value_expression
@@ -96,7 +95,6 @@ expression
         | boolean_expression
         | record_creation
         | array_creation
-        | for
         | let
 
 lvalue
@@ -113,7 +111,7 @@ no_value_expression
 
 function_call
         : ID LPAREN RPAREN
-        | ID LPAREN expression_list_commad RPAREN
+        | ID LPAREN expression_list RPAREN
 
 arithmetic_expression
         : expression PLUS expression
@@ -150,8 +148,6 @@ field_assignment
 array_creation
         : ID LBRACK expression RBRACK OF expression
 
-for
-        : FOR ID ASSIGN expression TO expression DO expression
 
 let
         : LET declaration_sequence IN expression_sequence END
@@ -189,22 +185,21 @@ function_declaration
         : FUNCTION ID LPAREN type_fields RPAREN EQ expression
         | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression
 
-if_then_else
+selection
         : IF expression THEN expression ELSE expression
+        | IF expression THEN expression
 
-if_then
-        : IF expression THEN expression
-
-while
+iteration
         : WHILE expression DO expression
+        | FOR ID ASSIGN expression TO expression DO expression
 
 expression_sequence
         : expression
         | expression_sequence SEMICOLON expression
 
-expression_list_commad
+expression_list
         : expression
-        | expression_list_commad COMMA expression
+        | expression_list COMMA expression
 
 assignment
         : lvalue ASSIGN expression
