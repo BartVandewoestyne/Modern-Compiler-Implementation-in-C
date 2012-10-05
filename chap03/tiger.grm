@@ -41,8 +41,10 @@ void yyerror(char *s)
 
 %start program
 
-/* Associativity of operators. */
-%nonassoc EQ NEQ
+%left ASSIGN
+%left OR
+%left AND
+%nonassoc EQ NEQ GT LT GE LE
 %left PLUS MINUS
 %left TIMES DIV
 %left UMINUS
@@ -50,6 +52,84 @@ void yyerror(char *s)
 %%
 
 program: expression
+
+
+/* EXPRESSIONS */
+
+expression: lvalue
+          | valueless_expression
+          | NIL
+          | sequencing
+          | no_value_expression
+          | INT
+          | STRING
+          | MINUS expression %prec UMINUS
+          | function_call
+          | arithmetic
+          | comparison
+          | boolean_operators
+          | record_creation
+          | array_creation
+          | for
+          | let
+
+
+/* LVALUES */
+
+lvalue: ID lvalue_extension
+
+lvalue_extension: /* empty */
+                | DOT ID lvalue_extension
+                | LBRACK expression RBRACK lvalue_extension
+
+
+/* TODO: procedure calls */
+valueless_expression: assignment
+                    | if_then
+                    | while
+                    | break
+                    | if_then_else /* TODO: only sometimes is this valueless */
+
+sequencing: LPAREN expression_sequence RPAREN
+
+no_value_expression: LPAREN RPAREN
+                   | LET declaration_sequence IN END
+
+function_call: ID LPAREN RPAREN
+             | ID LPAREN expression_list_commad RPAREN
+
+arithmetic: expression PLUS expression
+          | expression MINUS expression
+          | expression TIMES expression
+          | expression DIVIDE expression
+
+/* TODO: EQ and NEQ can also be applied to two record or array operands of the same type */
+comparison: expression EQ expression
+          | expression NEQ expression
+          | expression GT expression
+          | expression LT expression 
+          | expression GE expression 
+          | expression LE expression 
+
+boolean_operators: expression AND expression
+                 | expression OR expression
+
+record_creation: ID LBRACE field_assignments RBRACE
+
+field_assignments: /* empty */
+                 | field_assignments_commad
+
+field_assignments_commad: field_assignment
+                        | field_assignments_commad COMMA field_assignment
+
+field_assignment: ID EQ expression
+
+array_creation: ID LBRACK expression RBRACK OF expression
+
+for: FOR ID ASSIGN expression TO expression DO expression
+
+let: LET declaration_sequence IN expression_sequence END
+
 
 /* DECLARATIONS */
 
@@ -83,58 +163,12 @@ variable_declaration: VAR ID ASSIGN expression
 
 
 /* FUNCTIONS */
+
 function_declaration: FUNCTION ID LPAREN type_fields RPAREN EQ expression
                     | FUNCTION ID LPAREN type_fields RPAREN COLON ID EQ expression
 
 
 /* VARIABLES AND EXPRESSIONS */
-
-lvalue: ID
-      | lvalue DOT ID
-      | lvalue LBRACK expression RBRACK
-
-valueless_expression: procedure_call
-                    | assignment
-                    | if_then
-                    | while
-                    | break
-                    | if_then_else /* TODO: only sometimes is this valueless */
-
-no_value_expression: LPAREN RPAREN
-                   | LET declaration_sequence IN END
-
-negation: MINUS INT
-
-function_call: ID LPAREN RPAREN
-             | ID LPAREN expression_list_columned RPAREN
-
-arithmetic: INT PLUS INT
-          | INT MINUS INT
-          | INT TIMES INT
-          | INT DIVIDE INT
-
-/* TODO: EQ and NEQ can also be applied to two record or array operands of the same type */
-comparison: INT EQ INT
-          | INT NEQ INT
-          | INT GT INT
-          | INT LT INT
-          | INT GE INT
-          | INT LE INT
-
-string_comparison: STRING EQ STRING
-                 | STRING NEQ STRING
-                 | STRING GT STRING
-                 | STRING LT STRING
-                 | STRING GE STRING
-                 | STRING LE STRING
-
-boolean_operators: INT AND INT
-                 | INT OR INT
-
-record_creation: ID LBRACE ID EQ expression RBRACE /* TODO: multiple fields */
-               | ID LBRACE RBRACE
-
-array_creation: ID LBRACK expression RBRACK OF expression
 
 if_then_else: IF expression THEN expression ELSE expression
 
@@ -142,38 +176,12 @@ if_then: IF expression THEN expression
 
 while: WHILE expression DO expression
 
-for: FOR ID ASSIGN expression TO expression DO expression
-
 break: BREAK
 
-let: LET declaration_sequence IN expression_sequence END
+expression_sequence: expression
+                   | expression_sequence SEMICOLON expression
 
-expression: lvalue
-          | valueless_expression
-          | NIL
-          | sequencing
-          | no_value_expression
-          | INT
-          | STRING
-          | negation %prec UMINUS
-          | function_call
-          | arithmetic
-          | comparison
-          | string_comparison
-          | boolean_operators
-          | record_creation
-          | array_creation
-          | for
-          | let
-
-sequencing: LPAREN expression_list_semicolumned RPAREN
-
-expression_sequence: expression SEMICOLON expression
-
-expression_list_semicolumned: expression
-                            | expression_list_semicolumned SEMICOLON expression
-
-expression_list_columned: expression
-                        | expression_list_columned COLON expression
+expression_list_commad: expression
+                        | expression_list_commad COMMA expression
 
 assignment: lvalue ASSIGN expression
