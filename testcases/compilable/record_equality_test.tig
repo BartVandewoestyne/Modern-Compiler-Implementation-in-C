@@ -3,5 +3,6 @@ let
   var myrecord1 := person {name="Bart", age=34}
   var myrecord2 := person {name="Bart", age=34}
 in
-  myreqord1 = myrecord2
+  myreqord1 = myrecord2;
+  myreqord1 <> myrecord2
 end
