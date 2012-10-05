@@ -1,5 +1,5 @@
 /*
- * SHIFT-REDUCE CONFLICTS:
+ * SHIFT-REDUCE CONFLICTS THAT I ENCOUNTERED:
  *
  *   IF expression THEN expression
  *   (if x=1 then a = 1) + 2
@@ -58,7 +58,7 @@ void yyerror(char *s)
 %start program
 
 %nonassoc DO OF
-%nonassoc THEN /* ELSE must come after THEN */
+%nonassoc THEN /* ELSE must come after THEN! */
 %nonassoc ELSE
 %left SEMICOLON
 %left ASSIGN
