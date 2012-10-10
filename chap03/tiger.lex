@@ -1,5 +1,3 @@
-/* THIS FILE SHOULD BE EXACTLY THE SAME AS THE ONE FROM CHAPTER 2, EXCEPT
-   FOR THE INCLUSION OF y.tab.h INSTEAD OF tokens.h */
 %{
 
 #include <assert.h>

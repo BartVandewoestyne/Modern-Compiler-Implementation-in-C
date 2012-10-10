@@ -1,6 +1,6 @@
 /*
- * Functions used in all phases of the compiler to give
- * error messages about the Tiger program.
+ * Functions used in all phases of the compiler to give error messages about the
+ * Tiger program.
  */
 
 #include <stdio.h>
@@ -63,7 +63,6 @@ void EM_error(int pos, char *message,...)
   vfprintf(stderr, message, ap);
   va_end(ap);
   fprintf(stderr,"\n");
-
 }
 
 void EM_reset(string fname)
