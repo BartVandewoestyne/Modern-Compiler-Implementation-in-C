@@ -23,5 +23,3 @@ SHIFT-REDUCE CONFLICTS THAT I ENCOUNTERED:
 References:
 
   [1] http://linuxgazette.net/issue93/ramankutty.html
-
-
