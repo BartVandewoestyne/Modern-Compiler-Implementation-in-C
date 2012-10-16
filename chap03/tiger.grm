@@ -1,3 +1,9 @@
+/*
+ * TODO:
+ *   1. With the code as it is now, things like
+ *        BREAK + BREAK
+ *      are still possible...
+ */
 %{
 #include <stdio.h>
 #include "util.h"
