@@ -37,3 +37,11 @@ Some other remarks:
   Appel in ML, and then translated to C and Java, so the C and Java are not
   great examples of how to code in those languages (the Java version uses few
   OO programming techniques).
+
+* The code often makes use of a union paired with a discrete value that
+  indicates the active member of the union.  This is called a 'discriminated
+  union' or 'tagged union'.  The discrete value is called a discriminator or
+  tag.  See also
+
+    http://www.drdobbs.com/cpp/discriminated-unions/240009296
+    http://en.wikipedia.org/wiki/Tagged_union
