@@ -1,9 +1,11 @@
-This directory contains my progress in working my way through the book
+My implementation of the Tiger compiler from the book
 
   Modern Compiler Implementation in C
   Andrew W. Appel
   Cambridge University Press
   ISBN 0-521-60765-5
+
+This work is not finished yet.  From time to time, I hack on it.
 
 I was not quite sure in what C-standard or dialect I was going to write my
 code, so I did some investigations...
